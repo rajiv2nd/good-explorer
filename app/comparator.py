@@ -8,19 +8,19 @@ from dataclasses import asdict
 
 from app.scrapers.amazon import AmazonScraper
 from app.scrapers.base import BaseScraper, ProductResult
-from app.scrapers.bigbasket import BigBasketScraper
-from app.scrapers.blinkit import BlinkitScraper
 from app.scrapers.flipkart import FlipkartScraper
-from app.scrapers.zepto import ZeptoScraper
+from app.scrapers.google_shopping import GoogleShoppingScraper
+from app.scrapers.playwright_scraper import PlaywrightScraper
 
 log = logging.getLogger(__name__)
 
 ALL_SCRAPERS: list[BaseScraper] = [
     AmazonScraper(),
     FlipkartScraper(),
-    BigBasketScraper(),
-    BlinkitScraper(),
-    ZeptoScraper(),
+    GoogleShoppingScraper(),
+    PlaywrightScraper("Blinkit"),
+    PlaywrightScraper("BigBasket"),
+    PlaywrightScraper("Zepto"),
 ]
 
 
@@ -63,9 +63,7 @@ async def compare_prices(
         "platforms": platform_results,
         "cheapest": cheapest,
         "platform_count": len(scrapers),
-        "total_results": sum(
-            len(v) for v in platform_results.values()
-        ),
+        "total_results": sum(len(v) for v in platform_results.values()),
     }
 
 
