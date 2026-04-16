@@ -18,6 +18,7 @@
     --red: #ef4444;
     --orange: #f59e0b;
     --blue: #3b82f6;
+    --purple: #8b5cf6;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -53,6 +54,10 @@
   .btn-outline { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
   .btn-outline:hover { background: #ecfdf5; }
   .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-blue:hover { background: #2563eb; }
+  .btn-purple { background: var(--purple); color: #fff; }
+  .btn-purple:hover { background: #7c3aed; }
 
   /* List mode */
   .list-section { margin-top: 1rem; }
@@ -83,6 +88,21 @@
   }
   .cheapest-banner a { color: #fff; text-decoration: underline; }
 
+  /* No results */
+  .no-results-card {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 2rem; text-align: center; margin-bottom: 1.5rem;
+  }
+  .no-results-card .icon { font-size: 3rem; margin-bottom: 0.5rem; }
+  .no-results-card h3 { color: var(--text-muted); margin-bottom: 0.5rem; }
+  .no-results-card .suggestions { color: var(--text-muted); font-size: 0.9rem; }
+  .no-results-card .suggestion-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem; }
+  .suggestion-tag {
+    background: #ecfdf5; color: var(--primary); padding: 0.3rem 0.8rem; border-radius: 20px;
+    font-size: 0.85rem; cursor: pointer; border: 1px solid var(--primary); transition: all 0.2s;
+  }
+  .suggestion-tag:hover { background: var(--primary); color: #fff; }
+
   /* Platform cards */
   .platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
   .platform-card {
@@ -95,13 +115,18 @@
   }
   .platform-header h3 { font-size: 1rem; }
   .platform-header .delivery { font-size: 0.8rem; color: var(--text-muted); }
+  .sort-btn { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.7rem; cursor: pointer; color: var(--text-muted); }
+  .sort-btn:hover { background: #f3f4f6; }
   .product-list { padding: 0.5rem; }
   .product-item {
     display: flex; gap: 0.75rem; padding: 0.75rem; border-radius: 8px;
     transition: background 0.2s; align-items: center;
   }
   .product-item:hover { background: #f9fafb; }
-  .product-item img { width: 50px; height: 50px; object-fit: contain; border-radius: 6px; background: #f3f4f6; }
+  .product-icon {
+    width: 50px; height: 50px; background: #f3f4f6; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;
+  }
   .product-info { flex: 1; min-width: 0; }
   .product-info .name { font-size: 0.85rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .product-info .meta { font-size: 0.75rem; color: var(--text-muted); }
@@ -109,7 +134,7 @@
   .product-price .current { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
   .product-price .original { font-size: 0.75rem; color: var(--text-muted); text-decoration: line-through; }
   .product-price .discount { font-size: 0.7rem; color: var(--red); font-weight: 600; }
-  .no-results { padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+  .na-badge { color: var(--red); font-weight: 600; font-size: 0.85rem; padding: 0.5rem 1rem; }
 
   /* Buy button */
   .buy-btn {
@@ -119,11 +144,49 @@
   }
   .buy-btn:hover { background: #2563eb; }
 
+  /* Summary card */
+  .summary-card {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);
+  }
+  .summary-card h3 { font-size: 1.1rem; margin-bottom: 1rem; color: var(--text); }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+  .summary-stat { text-align: center; padding: 0.75rem; background: #f9fafb; border-radius: 8px; }
+  .summary-stat .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .summary-stat .value { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+  .summary-stat .value.savings { color: var(--red); }
+
+  /* Savings breakdown */
+  .savings-card {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--orange);
+  }
+  .savings-card h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+  .savings-bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+  .savings-bar-label { width: 100px; font-size: 0.85rem; font-weight: 500; text-align: right; }
+  .savings-bar-track { flex: 1; height: 24px; background: #f3f4f6; border-radius: 12px; overflow: hidden; position: relative; }
+  .savings-bar-fill { height: 100%; border-radius: 12px; transition: width 0.5s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
+  .savings-bar-fill span { font-size: 0.7rem; font-weight: 700; color: #fff; }
+
+  /* Smart Cart */
+  .smart-cart {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--blue);
+  }
+  .smart-cart h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+  .cart-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .cart-table th { text-align: left; padding: 0.5rem; border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
+  .cart-table td { padding: 0.5rem; border-bottom: 1px solid var(--border); }
+  .cart-table .total-row { font-weight: 700; background: #f9fafb; }
+  .cart-table .total-row td { border-top: 2px solid var(--primary); }
+  .cart-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+
   @media (max-width: 640px) {
     .container { padding: 0.75rem; }
     .search-row { flex-direction: column; }
     .platform-grid { grid-template-columns: 1fr; }
     .cheapest-banner { flex-direction: column; text-align: center; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -131,7 +194,7 @@
 
 <div class="header">
   <h1>🛒 Good Explorer</h1>
-  <p>Compare grocery prices across Amazon, Flipkart, BigBasket, Blinkit & Zepto</p>
+  <p>Compare grocery prices across Amazon, Flipkart, BigBasket, Blinkit &amp; Zepto</p>
 </div>
 
 <div class="container">
@@ -140,14 +203,14 @@
   <div class="search-section">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
       <h2 style="font-size:1.1rem;color:var(--text-muted);">Search Items</h2>
-      <button class="btn btn-outline btn-sm" onclick="toggleListMode()">📋 List Mode</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleListMode()" id="modeToggle">📋 List Mode</button>
     </div>
 
     <!-- Single search -->
     <div id="singleSearch">
       <div class="search-row">
-        <input type="text" id="searchQuery" placeholder="e.g. Toor Dal, Amul Butter, Surf Excel..." autofocus>
-        <input type="text" id="searchQty" placeholder="Quantity (e.g. 1kg, 500ml)" style="max-width:180px;">
+        <input type="text" id="searchQuery" placeholder="e.g. Toor Dal, Amul Butter, Paneer, Papaya..." autofocus>
+        <input type="text" id="searchQty" placeholder="Quantity (e.g. 1kg)" style="max-width:180px;">
         <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">🔍 Compare</button>
       </div>
     </div>
@@ -182,10 +245,50 @@
 <script>
 let listMode = false;
 
+const PLATFORM_URLS = {
+  Amazon: 'https://www.amazon.in/s?k=',
+  Flipkart: 'https://www.flipkart.com/search?q=',
+  BigBasket: 'https://www.bigbasket.com/ps/?q=',
+  Blinkit: 'https://blinkit.com/s/?q=',
+  Zepto: 'https://www.zeptonow.com/search?query=',
+};
+
+const PLATFORM_ICONS = {
+  Amazon: '📦', Flipkart: '🛍️', BigBasket: '🧺', Blinkit: '⚡', Zepto: '🚀', JioMart: '🏪',
+};
+
+const PLATFORM_COLORS = {
+  Amazon: '#ff9900', Flipkart: '#2874f0', BigBasket: '#84c225', Blinkit: '#f8cb46', Zepto: '#8b5cf6',
+};
+
+const CATEGORY_ICONS = {
+  default: '🛒',
+  fruit: '🍎', vegetable: '🥬', dairy: '🥛', staple: '🌾',
+  cooking: '🫒', snack: '🍪', beverage: '☕', personal: '🧴',
+  cleaning: '🧹', baby: '👶', frozen: '🧊',
+};
+
+function getCategoryIcon(name) {
+  const n = name.toLowerCase();
+  if (/apple|banana|papaya|mango|orange|grape|watermelon|pomegranate|guava|kiwi|fruit/.test(n)) return CATEGORY_ICONS.fruit;
+  if (/potato|onion|tomato|carrot|capsicum|brinjal|cauliflower|cabbage|spinach|peas|beans|lady|cucumber|ginger|garlic|vegetable/.test(n)) return CATEGORY_ICONS.vegetable;
+  if (/milk|ghee|cheese|curd|yogurt|buttermilk|cream|butter|paneer|egg/.test(n)) return CATEGORY_ICONS.dairy;
+  if (/rice|dal|atta|flour|sugar|rajma|chole|chickpea|poha|sooji|rava|bread/.test(n)) return CATEGORY_ICONS.staple;
+  if (/oil|salt|turmeric|chilli|cumin|coriander/.test(n)) return CATEGORY_ICONS.cooking;
+  if (/chip|namkeen|biscuit|cookie|chocolate|maggi/.test(n)) return CATEGORY_ICONS.snack;
+  if (/tea|coffee|juice|soft drink|water|coca|thums/.test(n)) return CATEGORY_ICONS.beverage;
+  if (/soap|shampoo|toothpaste|face wash|deodorant/.test(n)) return CATEGORY_ICONS.personal;
+  if (/detergent|dishwash|floor|toilet|cleaner/.test(n)) return CATEGORY_ICONS.cleaning;
+  if (/diaper|baby/.test(n)) return CATEGORY_ICONS.baby;
+  if (/ice cream|frozen/.test(n)) return CATEGORY_ICONS.frozen;
+  return CATEGORY_ICONS.default;
+}
+
 function toggleListMode() {
   listMode = !listMode;
   document.getElementById('singleSearch').style.display = listMode ? 'none' : 'block';
   document.getElementById('listSearch').style.display = listMode ? 'block' : 'none';
+  document.getElementById('modeToggle').textContent = listMode ? '🔍 Single Mode' : '📋 List Mode';
 }
 
 function addListItem() {
@@ -194,9 +297,15 @@ function addListItem() {
   div.className = 'list-item';
   div.innerHTML = '<input type="text" placeholder="Item name" class="list-name"><input type="text" placeholder="Qty" class="list-qty" style="max-width:100px;"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
   list.appendChild(div);
+  div.querySelector('.list-name').focus();
 }
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function suggestSearch(term) {
+  document.getElementById('searchQuery').value = term;
+  doSearch();
+}
 
 async function doSearch() {
   const query = document.getElementById('searchQuery').value.trim();
@@ -211,7 +320,7 @@ async function doSearch() {
       body: JSON.stringify({query, quantity: qty}),
     });
     const data = await res.json();
-    renderResults([data]);
+    renderResults([data], null);
   } catch (err) {
     alert('Search failed: ' + err.message);
   }
@@ -236,7 +345,7 @@ async function doListSearch() {
       body: JSON.stringify({items}),
     });
     const data = await res.json();
-    renderResults(data.items);
+    renderResults(data.items, data.summary);
   } catch (err) {
     alert('Search failed: ' + err.message);
   }
@@ -248,10 +357,17 @@ function showLoading(show) {
   document.getElementById('results').classList.toggle('show', !show);
 }
 
-function renderResults(comparisons) {
+function renderResults(comparisons, summary) {
   const container = document.getElementById('results');
   container.innerHTML = '';
   container.classList.add('show');
+
+  // Render consolidated summary + smart cart for list mode
+  if (summary && summary.total_items > 0) {
+    renderSummary(container, summary, comparisons);
+    renderSavingsBreakdown(container, summary);
+    renderSmartCart(container, summary, comparisons);
+  }
 
   comparisons.forEach(comp => {
     // Section header
@@ -259,6 +375,24 @@ function renderResults(comparisons) {
     header.style.cssText = 'font-size:1.1rem;color:var(--text-muted);margin:1.5rem 0 0.75rem;';
     header.textContent = `Results for "${comp.query}${comp.quantity ? ' ' + comp.quantity : ''}" (${comp.total_results} found)`;
     container.appendChild(header);
+
+    // No results
+    if (comp.total_results === 0) {
+      const noRes = document.createElement('div');
+      noRes.className = 'no-results-card';
+      noRes.innerHTML = `
+        <div class="icon">🔍</div>
+        <h3>No results found for "${esc(comp.query)}"</h3>
+        <p class="suggestions">Try searching for:</p>
+        <div class="suggestion-tags">
+          ${['milk', 'rice', 'dal', 'butter', 'eggs', 'paneer', 'sugar', 'tea', 'soap', 'chips'].map(t =>
+            `<span class="suggestion-tag" onclick="suggestSearch('${t}')">${t}</span>`
+          ).join('')}
+        </div>
+      `;
+      container.appendChild(noRes);
+      return;
+    }
 
     // Cheapest banner
     if (comp.cheapest) {
@@ -284,36 +418,45 @@ function renderResults(comparisons) {
     const grid = document.createElement('div');
     grid.className = 'platform-grid';
 
-    const platformIcons = {Amazon:'📦', Flipkart:'🛍️', BigBasket:'🧺', Blinkit:'⚡', Zepto:'🚀'};
-
-    Object.entries(comp.platforms).forEach(([platform, products]) => {
+    const allPlatforms = ['Amazon', 'Flipkart', 'BigBasket', 'Blinkit', 'Zepto'];
+    allPlatforms.forEach(platform => {
+      const products = comp.platforms[platform] || [];
       const card = document.createElement('div');
       card.className = 'platform-card';
 
       const delivery = products.length > 0 ? products[0].delivery_time : 'N/A';
+      const icon = PLATFORM_ICONS[platform] || '🛒';
+
+      let productHTML;
+      if (products.length === 0) {
+        productHTML = '<div class="na-badge" style="text-align:center;padding:1.5rem;">❌ Not Available</div>';
+      } else {
+        productHTML = products.map(p => `
+          <div class="product-item">
+            <div class="product-icon">${getCategoryIcon(p.name)}</div>
+            <div class="product-info">
+              <div class="name" title="${esc(p.name)}">${esc(p.name)}</div>
+              <div class="meta">${p.rating > 0 ? '⭐ ' + p.rating.toFixed(1) : ''} · 🕐 ${esc(p.delivery_time || 'N/A')}</div>
+              ${p.product_url ? '<a href="' + esc(p.product_url) + '" target="_blank" class="buy-btn">Buy →</a>' : ''}
+            </div>
+            <div class="product-price">
+              <div class="current">₹${p.price.toFixed(2)}</div>
+              ${p.original_price > p.price ? '<div class="original">₹' + p.original_price.toFixed(2) + '</div>' : ''}
+              ${p.discount_pct > 0 ? '<div class="discount">' + p.discount_pct.toFixed(0) + '% off</div>' : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
       card.innerHTML = `
         <div class="platform-header">
-          <h3>${platformIcons[platform] || '🛒'} ${esc(platform)}</h3>
-          <span class="delivery">🕐 ${esc(delivery)}</span>
+          <h3>${icon} ${esc(platform)}</h3>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <span class="delivery">🕐 ${esc(delivery)}</span>
+            ${products.length > 1 ? '<button class="sort-btn" onclick="sortPlatformCard(this)">Sort ↕</button>' : ''}
+          </div>
         </div>
-        <div class="product-list">
-          ${products.length === 0 ? '<div class="no-results">No results found</div>' :
-            products.map(p => `
-              <div class="product-item">
-                ${p.image_url ? '<img src="' + esc(p.image_url) + '" alt="" onerror="this.style.display=\'none\'">' : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;"></div>'}
-                <div class="product-info">
-                  <div class="name" title="${esc(p.name)}">${esc(p.name)}</div>
-                  <div class="meta">${p.rating > 0 ? '⭐ ' + p.rating.toFixed(1) : ''}</div>
-                  ${p.product_url ? '<a href="' + esc(p.product_url) + '" target="_blank" class="buy-btn">Buy →</a>' : ''}
-                </div>
-                <div class="product-price">
-                  <div class="current">₹${p.price.toFixed(2)}</div>
-                  ${p.original_price > p.price ? '<div class="original">₹' + p.original_price.toFixed(2) + '</div>' : ''}
-                  ${p.discount_pct > 0 ? '<div class="discount">' + p.discount_pct.toFixed(0) + '% off</div>' : ''}
-                </div>
-              </div>
-            `).join('')}
-        </div>
+        <div class="product-list">${productHTML}</div>
       `;
       grid.appendChild(card);
     });
@@ -321,6 +464,165 @@ function renderResults(comparisons) {
     container.appendChild(grid);
   });
 }
+
+function sortPlatformCard(btn) {
+  const card = btn.closest('.platform-card');
+  const list = card.querySelector('.product-list');
+  const items = Array.from(list.querySelectorAll('.product-item'));
+  const asc = btn.dataset.sorted !== 'asc';
+  items.sort((a, b) => {
+    const pa = parseFloat(a.querySelector('.current').textContent.replace('₹', ''));
+    const pb = parseFloat(b.querySelector('.current').textContent.replace('₹', ''));
+    return asc ? pa - pb : pb - pa;
+  });
+  items.forEach(item => list.appendChild(item));
+  btn.dataset.sorted = asc ? 'asc' : 'desc';
+  btn.textContent = asc ? 'Sort ↑' : 'Sort ↓';
+}
+
+function renderSummary(container, summary, comparisons) {
+  const card = document.createElement('div');
+  card.className = 'summary-card';
+
+  const platforms = ['Amazon', 'Flipkart', 'BigBasket', 'Blinkit', 'Zepto'];
+  const platformStats = platforms.map(p => {
+    const key = `total_${p.toLowerCase().replace(' ', '_')}_cost`;
+    return { name: p, total: summary[key] || 0 };
+  }).filter(p => p.total > 0);
+
+  card.innerHTML = `
+    <h3>📊 Consolidated Summary — ${summary.total_items} items</h3>
+    <div class="summary-grid">
+      <div class="summary-stat">
+        <div class="label">Cheapest Cart Total</div>
+        <div class="value">₹${summary.total_cheapest_cost.toFixed(2)}</div>
+      </div>
+      <div class="summary-stat">
+        <div class="label">You Save Up To</div>
+        <div class="value savings">₹${summary.savings_vs_most_expensive.toFixed(2)}</div>
+      </div>
+      <div class="summary-stat">
+        <div class="label">Best Single Platform</div>
+        <div class="value" style="font-size:1.1rem;">${PLATFORM_ICONS[summary.best_platform] || '🛒'} ${esc(summary.best_platform)}</div>
+      </div>
+      ${platformStats.map(p => `
+        <div class="summary-stat">
+          <div class="label">${PLATFORM_ICONS[p.name] || ''} ${p.name}</div>
+          <div class="value" style="font-size:1.2rem;${p.name === summary.best_platform ? 'color:var(--primary);' : 'color:var(--text);'}">₹${p.total.toFixed(2)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  container.appendChild(card);
+}
+
+function renderSavingsBreakdown(container, summary) {
+  const platforms = ['Amazon', 'Flipkart', 'BigBasket', 'Blinkit', 'Zepto'];
+  const data = platforms.map(p => {
+    const key = `total_${p.toLowerCase().replace(' ', '_')}_cost`;
+    return { name: p, total: summary[key] || 0 };
+  }).filter(p => p.total > 0);
+
+  if (data.length === 0) return;
+
+  const maxCost = Math.max(...data.map(d => d.total));
+  const colors = ['#ff9900', '#2874f0', '#84c225', '#f8cb46', '#8b5cf6'];
+
+  const card = document.createElement('div');
+  card.className = 'savings-card';
+  card.innerHTML = `
+    <h3>💰 Savings Breakdown — Cheapest Cart ₹${summary.total_cheapest_cost.toFixed(2)}</h3>
+    ${data.map((d, i) => {
+      const pct = maxCost > 0 ? (d.total / maxCost * 100) : 0;
+      const saving = d.total - summary.total_cheapest_cost;
+      return `
+        <div class="savings-bar-row">
+          <div class="savings-bar-label">${PLATFORM_ICONS[d.name] || ''} ${d.name}</div>
+          <div class="savings-bar-track">
+            <div class="savings-bar-fill" style="width:${pct}%;background:${colors[i] || '#6b7280'};">
+              <span>₹${d.total.toFixed(0)}</span>
+            </div>
+          </div>
+          <div style="width:80px;font-size:0.8rem;color:${saving > 0 ? 'var(--red)' : 'var(--primary)'};">
+            ${saving > 0 ? '+₹' + saving.toFixed(0) : 'Cheapest'}
+          </div>
+        </div>
+      `;
+    }).join('')}
+  `;
+  container.appendChild(card);
+}
+
+function renderSmartCart(container, summary, comparisons) {
+  if (!summary.cheapest_cart || summary.cheapest_cart.length === 0) return;
+
+  const card = document.createElement('div');
+  card.className = 'smart-cart';
+
+  const rows = summary.cheapest_cart.map(item => `
+    <tr>
+      <td>${getCategoryIcon(item.item)} ${esc(item.item)}</td>
+      <td><span class="platform-badge" style="background:#ecfdf5;color:var(--primary);padding:0.2rem 0.5rem;border-radius:12px;font-size:0.8rem;">${PLATFORM_ICONS[item.platform] || ''} ${esc(item.platform)}</span></td>
+      <td style="font-weight:700;color:var(--primary);">₹${item.price.toFixed(2)}</td>
+      <td><a href="${PLATFORM_URLS[item.platform] || '#'}${encodeURIComponent(item.item)}" target="_blank" class="buy-btn">Buy →</a></td>
+    </tr>
+  `).join('');
+
+  const platforms = ['Amazon', 'Flipkart', 'BigBasket', 'Blinkit', 'Zepto'];
+  const allItemNames = summary.cheapest_cart.map(c => c.item);
+  const searchStr = allItemNames.join(' ');
+
+  const platformButtons = platforms.map(p => {
+    const key = `total_${p.toLowerCase().replace(' ', '_')}_cost`;
+    const total = summary[key] || 0;
+    if (total === 0) return '';
+    const url = PLATFORM_URLS[p] || '#';
+    return `<a href="${url}${encodeURIComponent(searchStr)}" target="_blank" class="btn btn-sm btn-outline" style="font-size:0.8rem;">${PLATFORM_ICONS[p] || ''} Buy All from ${p} (₹${total.toFixed(0)})</a>`;
+  }).filter(Boolean).join('');
+
+  card.innerHTML = `
+    <h3>🛒 Smart Cart — Buy at Best Prices</h3>
+    <table class="cart-table">
+      <thead><tr><th>Item</th><th>Platform</th><th>Price</th><th>Action</th></tr></thead>
+      <tbody>
+        ${rows}
+        <tr class="total-row">
+          <td colspan="2">Total (Cheapest Cart)</td>
+          <td style="color:var(--primary);">₹${summary.total_cheapest_cost.toFixed(2)}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="cart-buttons">
+      <button class="btn btn-sm btn-primary" onclick="buyCheapestCart()">🛒 Buy Cheapest Cart</button>
+      ${platformButtons}
+    </div>
+  `;
+  container.appendChild(card);
+}
+
+function buyCheapestCart() {
+  // Open each platform link for the cheapest items
+  const cart = window._lastSummary?.cheapest_cart || [];
+  const byPlatform = {};
+  cart.forEach(item => {
+    if (!byPlatform[item.platform]) byPlatform[item.platform] = [];
+    byPlatform[item.platform].push(item.item);
+  });
+  Object.entries(byPlatform).forEach(([platform, items]) => {
+    const url = PLATFORM_URLS[platform];
+    if (url) {
+      window.open(url + encodeURIComponent(items.join(' ')), '_blank');
+    }
+  });
+}
+
+// Override renderResults to store summary for buyCheapestCart
+const _origRenderResults = renderResults;
+renderResults = function(comparisons, summary) {
+  window._lastSummary = summary;
+  _origRenderResults(comparisons, summary);
+};
 
 // Enter key triggers search
 document.getElementById('searchQuery').addEventListener('keydown', e => {

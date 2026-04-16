@@ -3,18 +3,17 @@
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app.comparator import compare_list, compare_prices
+from app.scrapers.price_engine import search_all_platforms, search_list
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("good-explorer")
@@ -43,14 +42,11 @@ async def index():
 @app.post("/api/search")
 async def search(req: SearchRequest):
     """Search for a single item across all platforms."""
-    result = await compare_prices(
-        req.query, req.quantity, req.platforms,
-    )
-    return result
+    return await search_all_platforms(req.query, req.quantity)
 
 
 @app.post("/api/compare-list")
-async def search_list(req: ListSearchRequest):
-    """Compare prices for a list of items."""
-    results = await compare_list(req.items)
-    return {"items": results}
+async def compare_list_endpoint(req: ListSearchRequest):
+    """Compare prices for a list of items with consolidated summary."""
+    results, summary = await search_list(req.items)
+    return {"items": results, "summary": summary}
