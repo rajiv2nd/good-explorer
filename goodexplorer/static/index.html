@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Good Explorer — Price Comparison</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #0d9488;
+      --primary-light: #14b8a6;
+      --primary-dark: #0f766e;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 25px rgba(0,0,0,0.1);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --amazon: #FF9900;
+      --flipkart: #2874F0;
+      --blinkit: #F8CB46;
+      --bigbasket: #84C225;
+      --zepto: #7B2D8E;
+      --jiomart: #0078AD;
+    }
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-lg: 0 8px 25px rgba(0,0,0,0.4);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary), #2dd4bf);
+      color: white;
+      padding: 1.8rem 1rem 3rem;
+      text-align: center;
+      position: relative;
+    }
+    .header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.5px; }
+    .header h1 span { font-size: 2.6rem; }
+    .header p { opacity: 0.9; margin-top: 0.3rem; font-size: 1.05rem; }
+    .theme-toggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: white;
+      transition: background 0.2s;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,0.35); }
+
+    /* Container */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+
+    /* Search Section */
+    .search-section {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 1.5rem;
+      margin: -2rem auto 1.5rem;
+      position: relative;
+    }
+    .search-tabs { display: flex; gap: 0; margin-bottom: 1rem; }
+    .search-tab {
+      padding: 0.6rem 1.2rem;
+      border: 2px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .search-tab:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .search-tab:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: none; }
+    .search-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    .search-single, .search-bulk { display: none; }
+    .search-single.active, .search-bulk.active { display: block; }
+    .search-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .search-row input[type="text"] {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      outline: none;
+      background: var(--bg-card);
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .search-row input[type="text"]:focus { border-color: var(--primary); }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      background: var(--bg-card);
+      color: var(--text);
+      resize: vertical;
+      margin-bottom: 0.75rem;
+    }
+    textarea:focus { border-color: var(--primary); }
+    textarea::placeholder { color: var(--text-muted); }
+    .pincode-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .pincode-row label { font-size: 0.85rem; color: var(--text-muted); }
+    .pincode-row input {
+      width: 110px;
+      padding: 0.5rem 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      outline: none;
+      background: var(--bg-card);
+      color: var(--text);
+    }
+    .pincode-row input:focus { border-color: var(--primary); }
+
+    /* Buttons */
+    .btn {
+      padding: 0.7rem 1.3rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #16a34a; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .action-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    /* Chips */
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; min-height: 0; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+      border: 1px solid #a7f3d0;
+      border-radius: 20px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.85rem;
+      color: var(--primary-dark);
+      font-weight: 500;
+    }
+    [data-theme="dark"] .chip {
+      background: linear-gradient(135deg, #064e3b, #065f46);
+      border-color: #047857;
+      color: #6ee7b7;
+    }
+    .chip .remove {
+      cursor: pointer;
+      font-weight: bold;
+      color: var(--danger);
+      margin-left: 0.2rem;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    /* Summary Bar */
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .summary-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.2rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .summary-card .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    .summary-card .value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-top: 0.3rem;
+    }
+    .summary-card .value.green { color: var(--success); }
+    .summary-card .value.primary { color: var(--primary); }
+
+    /* Item Cards */
+    .item-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .item-card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .item-card-header h3 { font-size: 1.1rem; font-weight: 700; }
+    .best-deal-bar {
+      font-size: 0.82rem;
+      color: var(--success);
+      font-weight: 600;
+    }
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0;
+    }
+    .platform-cell {
+      padding: 1rem;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      transition: background 0.2s;
+      position: relative;
+    }
+    .platform-cell:hover { background: rgba(13,148,136,0.04); }
+    .platform-cell.cheapest {
+      background: rgba(34,197,94,0.08);
+      border: 2px solid var(--success);
+      margin: -1px;
+    }
+    .cheapest-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 0.6rem;
+      background: var(--success);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .platform-cell.oos { opacity: 0.35; }
+    .platform-emoji { font-size: 1.5rem; margin-bottom: 0.2rem; }
+    .platform-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.4rem;
+    }
+    .platform-price { font-size: 1.35rem; font-weight: 800; }
+    .platform-mrp {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+    .discount-badge {
+      display: inline-block;
+      background: rgba(34,197,94,0.15);
+      color: var(--success);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 0.2rem;
+    }
+    .delivery-badge {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+    .buy-link {
+      display: inline-block;
+      margin-top: 0.4rem;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .buy-link:hover { opacity: 0.85; text-decoration: none; }
+
+    /* Comparison Table */
+    .table-section {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .table-section h2 {
+      padding: 1rem 1.25rem;
+      font-size: 1.15rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th {
+      background: var(--bg);
+      padding: 0.7rem 1rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    th:hover { color: var(--primary); }
+    th .sort-arrow { font-size: 0.65rem; margin-left: 0.3rem; }
+    td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tr.cheapest-row { background: rgba(34,197,94,0.08); }
+    tr:hover { background: rgba(13,148,136,0.03); }
+    .stock-yes { color: var(--success); font-weight: 600; }
+    .stock-no { color: var(--danger); font-weight: 600; }
+
+    /* Cart Section */
+    .cart-section {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 2px solid var(--primary);
+    }
+    .cart-section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .cart-platform {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .cart-platform-header {
+      padding: 0.7rem 1rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+    .cart-platform-items { padding: 0.5rem 1rem; }
+    .cart-platform-items li {
+      list-style: none;
+      padding: 0.4rem 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .cart-platform-items li:last-child { border-bottom: none; }
+    .cart-totals {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      margin-top: 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .cart-totals .savings { color: var(--success); }
+    .buy-all-row { margin-top: 1rem; text-align: center; }
+
+    /* Loading */
+    .loading { text-align: center; padding: 3rem; color: var(--text-muted); }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Utilities */
+    .hidden { display: none !important; }
+    .demo-badge {
+      display: inline-block;
+      background: var(--warning);
+      color: #1e293b;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+    }
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 1.7rem; }
+      .header h1 span { font-size: 1.9rem; }
+      .search-row { flex-direction: column; }
+      .platform-grid { grid-template-columns: repeat(2, 1fr); }
+      .summary-bar { grid-template-columns: 1fr 1fr; }
+      .cart-totals { flex-direction: column; gap: 0.5rem; }
+    }
+    @media (max-width: 480px) {
+      .platform-grid { grid-template-columns: 1fr 1fr; }
+      .summary-bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+    <h1><span>🛒</span> Good Explorer</h1>
+    <p>Find the best prices across all platforms</p>
+  </header>
+
+  <div class="container">
+    <!-- Search Section -->
+    <div class="search-section">
+      <div class="search-tabs">
+        <button class="search-tab active" onclick="switchTab('single')">Single Item</button>
+        <button class="search-tab" onclick="switchTab('bulk')">Bulk List</button>
+      </div>
+
+      <!-- Single Item Search -->
+      <div class="search-single active" id="singleSearch">
+        <div class="search-row">
+          <input type="text" id="itemInput" placeholder="e.g. Amul Butter 500g, Toor Dal 1kg" aria-label="Item name">
+          <button class="btn btn-secondary" onclick="addItem()">+ Add</button>
+        </div>
+        <div class="chips" id="chipList"></div>
+      </div>
+
+      <!-- Bulk Search -->
+      <div class="search-bulk" id="bulkSearch">
+        <textarea id="bulkInput" placeholder="One item per line, e.g.:&#10;Amul Butter 500g&#10;Toor Dal 1kg&#10;Eggs 12&#10;Maggi 4 pack&#10;Onion 1kg"></textarea>
+      </div>
+
+      <div class="pincode-row">
+        <label for="pincodeInput">📍 Pincode:</label>
+        <input type="text" id="pincodeInput" value="110001" maxlength="6" aria-label="Pincode">
+        <span class="demo-badge">DEMO MODE</span>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-primary" id="compareBtn" onclick="comparePrices()">🔍 Compare Prices</button>
+        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading hidden" id="loading">
+      <div class="spinner"></div>
+      <p>Searching across 6 platforms...</p>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="summary-bar hidden" id="summaryBar">
+      <div class="summary-card">
+        <div class="label">Items Compared</div>
+        <div class="value primary" id="sumItems">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Best Platform</div>
+        <div class="value primary" id="sumPlatform">—</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Cheapest Total</div>
+        <div class="value green" id="sumCheapest">₹0</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">You Save</div>
+        <div class="value green" id="sumSavings">₹0</div>
+      </div>
+    </div>
+
+    <!-- Results Cards -->
+    <div id="resultsSection" class="hidden"></div>
+
+    <!-- Comparison Table -->
+    <div class="table-section hidden" id="tableSection">
+      <h2>📊 Comparison Table</h2>
+      <div class="table-wrap">
+        <table id="compTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable(0)">Item <span class="sort-arrow">▼</span></th>
+              <th onclick="sortTable(1)">Platform <span class="sort-arrow">▼</span></th>
+              <th onclick="sortTable(2)">Price <span class="sort-arrow">▼</span></th>
+              <th onclick="sortTable(3)">MRP <span class="sort-arrow">▼</span></th>
+              <th onclick="sortTable(4)">Discount <span class="sort-arrow">▼</span></th>
+              <th onclick="sortTable(5)">Delivery <span class="sort-arrow">▼</span></th>
+              <th onclick="sortTable(6)">Stock <span class="sort-arrow">▼</span></th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="compTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cart Section -->
+    <div class="cart-section hidden" id="cartSection">
+      <h2>🛒 Smart Cart — Buy All Cheapest</h2>
+      <div id="cartContent"></div>
+      <div class="buy-all-row">
+        <button class="btn btn-success" onclick="buyAll()">🚀 Open All Buy Links</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    Good Explorer — Compare prices across Amazon, Flipkart, Blinkit, BigBasket, Zepto & JioMart<br>
+    Prices shown are demo/simulated data for demonstration purposes.
+  </footer>
+
+  <script>
+    /* ── Constants ── */
+    const PLATFORM_COLORS = {
+      Amazon: '#FF9900',
+      Flipkart: '#2874F0',
+      BigBasket: '#84C225',
+      Blinkit: '#F8CB46',
+      JioMart: '#0078AD',
+      Zepto: '#7B2D8E',
+    };
+
+    /* ── State ── */
+    const shoppingList = [];
+    let lastResponse = null;
+    let currentTab = 'single';
+    let sortCol = -1;
+    let sortAsc = true;
+
+    /* ── DOM helpers ── */
+    const $ = (id) => document.getElementById(id);
+    const show = (id) => $(id).classList.remove('hidden');
+    const hide = (id) => $(id).classList.add('hidden');
+    const fmt = (n) => '₹' + Number(n).toFixed(2);
+
+    /* ── Theme Toggle ── */
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      document.querySelector('.theme-toggle').textContent = isDark ? '🌙' : '☀️';
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+
+    // Restore saved theme
+    (function initTheme() {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.querySelector('.theme-toggle').textContent = '☀️';
+      }
+    })();
+
+    /* ── Tab Switching ── */
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.search-tab').forEach((el, i) => {
+        el.classList.toggle('active', (i === 0 && tab === 'single') || (i === 1 && tab === 'bulk'));
+      });
+      $('singleSearch').classList.toggle('active', tab === 'single');
+      $('bulkSearch').classList.toggle('active', tab === 'bulk');
+    }
+
+    /* ── Shopping List ── */
+    function addItem() {
+      const nameEl = $('itemInput');
+      const name = nameEl.value.trim();
+      if (!name) return;
+      shoppingList.push(name);
+      nameEl.value = '';
+      nameEl.focus();
+      renderChips();
+    }
+
+    function removeItem(index) {
+      shoppingList.splice(index, 1);
+      renderChips();
+    }
+
+    function renderChips() {
+      const container = $('chipList');
+      container.innerHTML = shoppingList.map((item, i) =>
+        `<span class="chip">${item} <span class="remove" onclick="removeItem(${i})">×</span></span>`
+      ).join('');
+    }
+
+    $('itemInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addItem();
+    });
+
+    /* ── Build items list from current tab ── */
+    function getSearchItems() {
+      if (currentTab === 'bulk') {
+        const lines = $('bulkInput').value.split('\n').map((l) => l.trim()).filter(Boolean);
+        return lines.map((line) => {
+          const parts = line.split(' - ');
+          if (parts.length === 2) {
+            return { name: parts[0].trim(), quantity: parts[1].trim() };
+          }
+          return { name: line, quantity: '' };
+        });
+      }
+      return shoppingList.map((name) => ({ name, quantity: '' }));
+    }
+
+    /* ── Compare Prices ── */
+    async function comparePrices() {
+      const items = getSearchItems();
+      if (items.length === 0) {
+        alert('Please add at least one item to compare.');
+        return;
+      }
+
+      hide('resultsSection');
+      hide('summaryBar');
+      hide('tableSection');
+      hide('cartSection');
+      show('loading');
+      $('compareBtn').disabled = true;
+
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: items,
+            pincode: $('pincodeInput').value || '110001',
+          }),
+        });
+
+        if (!res.ok) throw new Error(`Search failed (${res.status})`);
+        lastResponse = await res.json();
+        renderResults(lastResponse);
+        renderTable(lastResponse);
+        renderCart(lastResponse);
+      } catch (err) {
+        $('resultsSection').innerHTML = `<div class="loading"><p style="color:var(--danger)">Error: ${err.message}</p></div>`;
+        show('resultsSection');
+      } finally {
+        hide('loading');
+        $('compareBtn').disabled = false;
+      }
+    }
+
+    /* ── Render Results Cards ── */
+    function renderResults(data) {
+      // Summary
+      $('sumItems').textContent = data.comparisons.length;
+      $('sumPlatform').textContent = data.best_platform || '—';
+      $('sumCheapest').textContent = fmt(data.total_cheapest);
+      $('sumSavings').textContent = fmt(data.total_savings);
+      show('summaryBar');
+
+      // Item cards
+      const section = $('resultsSection');
+      section.innerHTML = data.comparisons.map((comp) => {
+        const cheapestPrice = comp.cheapest ? comp.cheapest.price : null;
+
+        const platformCells = comp.results.map((r) => {
+          const isCheapest = cheapestPrice !== null && Math.abs(r.price - cheapestPrice) < 0.01;
+          const color = PLATFORM_COLORS[r.platform] || '#666';
+          const cls = [
+            'platform-cell',
+            isCheapest ? 'cheapest' : '',
+            !r.in_stock ? 'oos' : '',
+          ].filter(Boolean).join(' ');
+
+          return `
+            <div class="${cls}">
+              ${isCheapest ? '<span class="cheapest-badge">Cheapest</span>' : ''}
+              <div class="platform-emoji">${r.image_url || '🛒'}</div>
+              <div class="platform-name" style="color:${color}">${r.platform}</div>
+              <div class="platform-price" style="color:${isCheapest ? 'var(--success)' : 'inherit'}">${fmt(r.price)}</div>
+              ${r.mrp > 0 ? `<div class="platform-mrp">MRP ${fmt(r.mrp)}</div>` : ''}
+              ${r.discount_pct > 0 ? `<div class="discount-badge">${r.discount_pct}% off</div>` : ''}
+              <div class="delivery-badge">🚚 ${r.delivery_time}</div>
+              <a href="${r.product_url}" target="_blank" rel="noopener" class="buy-link" style="background:${color}">Buy Now →</a>
+              ${!r.in_stock ? '<div style="color:var(--danger);font-size:0.72rem;font-weight:600;margin-top:0.2rem">Out of Stock</div>' : ''}
+            </div>`;
+        }).join('');
+
+        const bestDeal = comp.cheapest
+          ? `Best deal: ${comp.cheapest.platform} at ${fmt(comp.cheapest.price)} — ${comp.cheapest.delivery_time}`
+          : '';
+
+        return `
+          <div class="item-card">
+            <div class="item-card-header">
+              <h3>${comp.search_term}${comp.requested_quantity ? ' (' + comp.requested_quantity + ')' : ''}</h3>
+              <span class="best-deal-bar">✅ ${bestDeal}</span>
+            </div>
+            <div class="platform-grid">${platformCells}</div>
+          </div>`;
+      }).join('');
+
+      show('resultsSection');
+    }
+
+    /* ── Render Comparison Table ── */
+    function renderTable(data) {
+      const tbody = $('compTableBody');
+      const rows = [];
+
+      data.comparisons.forEach((comp) => {
+        const cheapestPrice = comp.cheapest ? comp.cheapest.price : null;
+        comp.results.forEach((r) => {
+          const isCheapest = cheapestPrice !== null && Math.abs(r.price - cheapestPrice) < 0.01;
+          rows.push({
+            item: comp.search_term,
+            platform: r.platform,
+            price: r.price,
+            mrp: r.mrp,
+            discount: r.discount_pct,
+            delivery: r.delivery_time,
+            inStock: r.in_stock,
+            url: r.product_url,
+            isCheapest,
+            color: PLATFORM_COLORS[r.platform] || '#666',
+          });
+        });
+      });
+
+      tbody.innerHTML = rows.map((r) => `
+        <tr class="${r.isCheapest ? 'cheapest-row' : ''}">
+          <td>${r.item}</td>
+          <td style="color:${r.color};font-weight:600">${r.platform}</td>
+          <td style="font-weight:700">${fmt(r.price)}</td>
+          <td style="color:var(--text-muted);text-decoration:line-through">${r.mrp > 0 ? fmt(r.mrp) : '—'}</td>
+          <td>${r.discount > 0 ? r.discount + '%' : '—'}</td>
+          <td>${r.delivery}</td>
+          <td class="${r.inStock ? 'stock-yes' : 'stock-no'}">${r.inStock ? '✓ Yes' : '✗ No'}</td>
+          <td><a href="${r.url}" target="_blank" rel="noopener" class="buy-link" style="background:${r.color};font-size:0.72rem">Buy →</a></td>
+        </tr>
+      `).join('');
+
+      show('tableSection');
+    }
+
+    /* ── Sort Table ── */
+    function sortTable(colIndex) {
+      if (sortCol === colIndex) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = colIndex;
+        sortAsc = true;
+      }
+
+      const tbody = $('compTableBody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      rows.sort((a, b) => {
+        let aVal = a.cells[colIndex].textContent.trim();
+        let bVal = b.cells[colIndex].textContent.trim();
+
+        // Numeric columns (price, mrp, discount)
+        if ([2, 3, 4].includes(colIndex)) {
+          aVal = parseFloat(aVal.replace(/[₹%—]/g, '')) || 0;
+          bVal = parseFloat(bVal.replace(/[₹%—]/g, '')) || 0;
+          return sortAsc ? aVal - bVal : bVal - aVal;
+        }
+
+        return sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      });
+
+      rows.forEach((row) => tbody.appendChild(row));
+    }
+
+    /* ── Render Cart ── */
+    function renderCart(data) {
+      const cart = {};
+      const buyLinks = [];
+
+      data.comparisons.forEach((comp) => {
+        if (!comp.cheapest) return;
+        const p = comp.cheapest.platform;
+        if (!cart[p]) cart[p] = [];
+        cart[p].push({
+          item: comp.search_term,
+          qty: comp.requested_quantity,
+          price: comp.cheapest.price,
+          url: comp.cheapest.product_url,
+        });
+        buyLinks.push(comp.cheapest.product_url);
+      });
+
+      const platformBlocks = Object.entries(cart).map(([platform, items]) => {
+        const color = PLATFORM_COLORS[platform] || '#666';
+        const subtotal = items.reduce((s, i) => s + i.price, 0);
+        const itemRows = items.map((i) =>
+          `<li><span>${i.item}${i.qty ? ' (' + i.qty + ')' : ''}</span><span>${fmt(i.price)}</span></li>`
+        ).join('');
+        return `
+          <div class="cart-platform">
+            <div class="cart-platform-header" style="background:${color}">
+              <span>${platform} (${items.length} items)</span>
+              <span>${fmt(subtotal)}</span>
+            </div>
+            <ul class="cart-platform-items">${itemRows}</ul>
+          </div>`;
+      }).join('');
+
+      const total = data.total_cheapest;
+      $('cartContent').innerHTML = `
+        ${platformBlocks}
+        <div class="cart-totals">
+          <span>Total: ${fmt(total)}</span>
+          <span class="savings">Savings vs avg: ${fmt(data.total_savings)}</span>
+        </div>`;
+
+      window._buyLinks = buyLinks;
+      show('cartSection');
+    }
+
+    /* ── Buy All ── */
+    function buyAll() {
+      if (window._buyLinks && window._buyLinks.length > 0) {
+        window._buyLinks.forEach((url) => window.open(url, '_blank'));
+      }
+    }
+
+    /* ── Clear All ── */
+    function clearAll() {
+      shoppingList.length = 0;
+      lastResponse = null;
+      renderChips();
+      $('bulkInput').value = '';
+      hide('resultsSection');
+      hide('summaryBar');
+      hide('tableSection');
+      hide('cartSection');
+      $('resultsSection').innerHTML = '';
+      $('cartContent').innerHTML = '';
+      $('compTableBody').innerHTML = '';
+    }
+  </script>
+</body>
+</html>
