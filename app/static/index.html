@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Explorer — Smart Price Comparison</title>
+<style>
+  :root {
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --bg: #f0fdf4;
+    --card-bg: #fff;
+    --text: #1a1a2e;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --red: #ef4444;
+    --orange: #f59e0b;
+    --blue: #3b82f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .header {
+    background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+    color: #fff; padding: 2rem; text-align: center;
+  }
+  .header h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+  .header p { opacity: 0.9; font-size: 1rem; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+  /* Search Section */
+  .search-section {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 1.5rem; margin-bottom: 1.5rem;
+  }
+  .search-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .search-row input {
+    flex: 1; min-width: 200px; padding: 0.75rem 1rem; border: 2px solid var(--border);
+    border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--primary); }
+  .btn {
+    padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+  .btn-outline { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
+  .btn-outline:hover { background: #ecfdf5; }
+  .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; }
+
+  /* List mode */
+  .list-section { margin-top: 1rem; }
+  .list-item { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
+  .list-item input { flex: 1; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+  .remove-btn { background: var(--red); color: #fff; border: none; border-radius: 6px; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 0.8rem; }
+
+  /* Loading */
+  .loading { display: none; text-align: center; padding: 2rem; }
+  .loading.show { display: block; }
+  .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Results */
+  #results { display: none; }
+  #results.show { display: block; }
+
+  /* Cheapest banner */
+  .cheapest-banner {
+    background: linear-gradient(135deg, #059669, #10b981); color: #fff;
+    border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .cheapest-banner h3 { font-size: 1.2rem; }
+  .cheapest-banner .price { font-size: 2rem; font-weight: 800; }
+  .cheapest-banner .platform-badge {
+    background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600;
+  }
+  .cheapest-banner a { color: #fff; text-decoration: underline; }
+
+  /* Platform cards */
+  .platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .platform-card {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .platform-header {
+    padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .platform-header h3 { font-size: 1rem; }
+  .platform-header .delivery { font-size: 0.8rem; color: var(--text-muted); }
+  .product-list { padding: 0.5rem; }
+  .product-item {
+    display: flex; gap: 0.75rem; padding: 0.75rem; border-radius: 8px;
+    transition: background 0.2s; align-items: center;
+  }
+  .product-item:hover { background: #f9fafb; }
+  .product-item img { width: 50px; height: 50px; object-fit: contain; border-radius: 6px; background: #f3f4f6; }
+  .product-info { flex: 1; min-width: 0; }
+  .product-info .name { font-size: 0.85rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .product-info .meta { font-size: 0.75rem; color: var(--text-muted); }
+  .product-price { text-align: right; }
+  .product-price .current { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+  .product-price .original { font-size: 0.75rem; color: var(--text-muted); text-decoration: line-through; }
+  .product-price .discount { font-size: 0.7rem; color: var(--red); font-weight: 600; }
+  .no-results { padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+
+  /* Buy button */
+  .buy-btn {
+    display: inline-block; background: var(--blue); color: #fff; border: none;
+    border-radius: 6px; padding: 0.3rem 0.6rem; font-size: 0.75rem; font-weight: 600;
+    cursor: pointer; text-decoration: none; margin-top: 0.25rem;
+  }
+  .buy-btn:hover { background: #2563eb; }
+
+  @media (max-width: 640px) {
+    .container { padding: 0.75rem; }
+    .search-row { flex-direction: column; }
+    .platform-grid { grid-template-columns: 1fr; }
+    .cheapest-banner { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🛒 Good Explorer</h1>
+  <p>Compare grocery prices across Amazon, Flipkart, BigBasket, Blinkit & Zepto</p>
+</div>
+
+<div class="container">
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h2 style="font-size:1.1rem;color:var(--text-muted);">Search Items</h2>
+      <button class="btn btn-outline btn-sm" onclick="toggleListMode()">📋 List Mode</button>
+    </div>
+
+    <!-- Single search -->
+    <div id="singleSearch">
+      <div class="search-row">
+        <input type="text" id="searchQuery" placeholder="e.g. Toor Dal, Amul Butter, Surf Excel..." autofocus>
+        <input type="text" id="searchQty" placeholder="Quantity (e.g. 1kg, 500ml)" style="max-width:180px;">
+        <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">🔍 Compare</button>
+      </div>
+    </div>
+
+    <!-- List search -->
+    <div id="listSearch" style="display:none;">
+      <div class="list-section" id="itemList">
+        <div class="list-item">
+          <input type="text" placeholder="Item name" class="list-name">
+          <input type="text" placeholder="Qty" class="list-qty" style="max-width:100px;">
+          <button class="remove-btn" onclick="this.parentElement.remove()">✕</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+        <button class="btn btn-outline btn-sm" onclick="addListItem()">+ Add Item</button>
+        <button class="btn btn-primary btn-sm" onclick="doListSearch()">🔍 Compare All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Searching across platforms...</p>
+  </div>
+
+  <!-- Results -->
+  <div id="results"></div>
+
+</div>
+
+<script>
+let listMode = false;
+
+function toggleListMode() {
+  listMode = !listMode;
+  document.getElementById('singleSearch').style.display = listMode ? 'none' : 'block';
+  document.getElementById('listSearch').style.display = listMode ? 'block' : 'none';
+}
+
+function addListItem() {
+  const list = document.getElementById('itemList');
+  const div = document.createElement('div');
+  div.className = 'list-item';
+  div.innerHTML = '<input type="text" placeholder="Item name" class="list-name"><input type="text" placeholder="Qty" class="list-qty" style="max-width:100px;"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+  list.appendChild(div);
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+async function doSearch() {
+  const query = document.getElementById('searchQuery').value.trim();
+  const qty = document.getElementById('searchQty').value.trim();
+  if (!query) return;
+
+  showLoading(true);
+  try {
+    const res = await fetch('/api/search', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query, quantity: qty}),
+    });
+    const data = await res.json();
+    renderResults([data]);
+  } catch (err) {
+    alert('Search failed: ' + err.message);
+  }
+  showLoading(false);
+}
+
+async function doListSearch() {
+  const rows = document.querySelectorAll('.list-item');
+  const items = [];
+  rows.forEach(row => {
+    const name = row.querySelector('.list-name').value.trim();
+    const qty = row.querySelector('.list-qty').value.trim();
+    if (name) items.push({name, quantity: qty});
+  });
+  if (!items.length) return;
+
+  showLoading(true);
+  try {
+    const res = await fetch('/api/compare-list', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({items}),
+    });
+    const data = await res.json();
+    renderResults(data.items);
+  } catch (err) {
+    alert('Search failed: ' + err.message);
+  }
+  showLoading(false);
+}
+
+function showLoading(show) {
+  document.getElementById('loading').classList.toggle('show', show);
+  document.getElementById('results').classList.toggle('show', !show);
+}
+
+function renderResults(comparisons) {
+  const container = document.getElementById('results');
+  container.innerHTML = '';
+  container.classList.add('show');
+
+  comparisons.forEach(comp => {
+    // Section header
+    const header = document.createElement('h2');
+    header.style.cssText = 'font-size:1.1rem;color:var(--text-muted);margin:1.5rem 0 0.75rem;';
+    header.textContent = `Results for "${comp.query}${comp.quantity ? ' ' + comp.quantity : ''}" (${comp.total_results} found)`;
+    container.appendChild(header);
+
+    // Cheapest banner
+    if (comp.cheapest) {
+      const c = comp.cheapest;
+      const banner = document.createElement('div');
+      banner.className = 'cheapest-banner';
+      banner.innerHTML = `
+        <div>
+          <h3>🏆 Best Price Found</h3>
+          <p>${esc(c.name)}</p>
+          <span class="platform-badge">${esc(c.platform)}</span>
+          <span style="margin-left:0.5rem;font-size:0.9rem;">📦 ${esc(c.delivery_time || 'N/A')}</span>
+        </div>
+        <div style="text-align:right;">
+          <div class="price">₹${c.price.toFixed(2)}</div>
+          ${c.product_url ? '<a href="' + esc(c.product_url) + '" target="_blank" class="buy-btn" style="background:rgba(255,255,255,0.25);padding:0.5rem 1rem;font-size:0.9rem;border-radius:8px;text-decoration:none;">Buy Now →</a>' : ''}
+        </div>
+      `;
+      container.appendChild(banner);
+    }
+
+    // Platform cards
+    const grid = document.createElement('div');
+    grid.className = 'platform-grid';
+
+    const platformIcons = {Amazon:'📦', Flipkart:'🛍️', BigBasket:'🧺', Blinkit:'⚡', Zepto:'🚀'};
+
+    Object.entries(comp.platforms).forEach(([platform, products]) => {
+      const card = document.createElement('div');
+      card.className = 'platform-card';
+
+      const delivery = products.length > 0 ? products[0].delivery_time : 'N/A';
+      card.innerHTML = `
+        <div class="platform-header">
+          <h3>${platformIcons[platform] || '🛒'} ${esc(platform)}</h3>
+          <span class="delivery">🕐 ${esc(delivery)}</span>
+        </div>
+        <div class="product-list">
+          ${products.length === 0 ? '<div class="no-results">No results found</div>' :
+            products.map(p => `
+              <div class="product-item">
+                ${p.image_url ? '<img src="' + esc(p.image_url) + '" alt="" onerror="this.style.display=\'none\'">' : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;"></div>'}
+                <div class="product-info">
+                  <div class="name" title="${esc(p.name)}">${esc(p.name)}</div>
+                  <div class="meta">${p.rating > 0 ? '⭐ ' + p.rating.toFixed(1) : ''}</div>
+                  ${p.product_url ? '<a href="' + esc(p.product_url) + '" target="_blank" class="buy-btn">Buy →</a>' : ''}
+                </div>
+                <div class="product-price">
+                  <div class="current">₹${p.price.toFixed(2)}</div>
+                  ${p.original_price > p.price ? '<div class="original">₹' + p.original_price.toFixed(2) + '</div>' : ''}
+                  ${p.discount_pct > 0 ? '<div class="discount">' + p.discount_pct.toFixed(0) + '% off</div>' : ''}
+                </div>
+              </div>
+            `).join('')}
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+  });
+}
+
+// Enter key triggers search
+document.getElementById('searchQuery').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+</script>
+
+</body>
+</html>
