@@ -38,12 +38,106 @@
     background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
     padding: 1.5rem; margin-bottom: 1.5rem;
   }
-  .search-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-  .search-row input {
-    flex: 1; min-width: 200px; padding: 0.75rem 1rem; border: 2px solid var(--border);
+  .search-row { display: flex; gap: 0.75rem; flex-wrap: wrap; position: relative; }
+  .search-input-wrap { flex: 1; min-width: 200px; position: relative; }
+  .search-input-wrap input {
+    width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--border);
     border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s;
   }
-  .search-row input:focus { border-color: var(--primary); }
+  .search-input-wrap input:focus { border-color: var(--primary); }
+  .qty-input-wrap { position: relative; max-width: 180px; }
+  .qty-input-wrap input {
+    width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--border);
+    border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s;
+  }
+  .qty-input-wrap input:focus { border-color: var(--primary); }
+
+  /* Autosuggest dropdown */
+  .autosuggest {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12); margin-top: 4px; display: none;
+    max-height: 320px; overflow-y: auto;
+  }
+  .autosuggest.show { display: block; }
+  .suggest-item {
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 1rem;
+    cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f3f4f6;
+  }
+  .suggest-item:last-child { border-bottom: none; }
+  .suggest-item:hover, .suggest-item.active { background: #ecfdf5; }
+  .suggest-item .icon { font-size: 1.2rem; width: 28px; text-align: center; }
+  .suggest-item .info { flex: 1; }
+  .suggest-item .name { font-size: 0.9rem; font-weight: 500; }
+  .suggest-item .cat { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* Quantity chips */
+  .qty-chips {
+    display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; display: none;
+  }
+  .qty-chips.show { display: flex; }
+  .qty-chip {
+    padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;
+    background: #ecfdf5; color: var(--primary); border: 1px solid var(--primary);
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .qty-chip:hover { background: var(--primary); color: #fff; }
+
+  /* Category browser */
+  .category-section {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 1rem 1.5rem; margin-bottom: 1.5rem;
+  }
+  .category-section h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .category-scroll {
+    display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 0.5rem;
+    scrollbar-width: thin; -webkit-overflow-scrolling: touch;
+  }
+  .category-scroll::-webkit-scrollbar { height: 4px; }
+  .category-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+  .cat-pill {
+    display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
+    border-radius: 24px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    white-space: nowrap; transition: all 0.2s; border: 2px solid transparent;
+    flex-shrink: 0;
+  }
+  .cat-pill:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .cat-pill.active { border-color: var(--primary); box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
+  .cat-pill .emoji { font-size: 1.1rem; }
+  .cat-pill .count { font-size: 0.7rem; opacity: 0.7; margin-left: 0.2rem; }
+
+  /* Category product grid */
+  .cat-products { display: none; margin-top: 1rem; }
+  .cat-products.show { display: block; }
+  .cat-products-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .cat-products-header h3 { font-size: 1rem; }
+  .cat-products-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
+  .cat-product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
+  .cat-product-card {
+    background: #f9fafb; border-radius: 8px; padding: 0.75rem; display: flex; gap: 0.75rem;
+    align-items: center; cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
+  }
+  .cat-product-card:hover { border-color: var(--primary); background: #ecfdf5; }
+  .cat-product-card .icon { font-size: 1.5rem; }
+  .cat-product-card .info { flex: 1; min-width: 0; }
+  .cat-product-card .pname { font-size: 0.85rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cat-product-card .pprice { font-size: 0.8rem; color: var(--primary); font-weight: 700; }
+  .cat-product-card .prange { font-size: 0.7rem; color: var(--text-muted); }
+
+  /* Popular searches */
+  .popular-section {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 1rem 1.5rem; margin-bottom: 1.5rem;
+  }
+  .popular-section h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .popular-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .popular-tag {
+    padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+    background: #f3f4f6; color: var(--text); cursor: pointer; transition: all 0.2s;
+    border: 1px solid var(--border);
+  }
+  .popular-tag:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
   .btn {
     padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem;
     font-weight: 600; cursor: pointer; transition: all 0.2s;
@@ -136,7 +230,6 @@
   .product-price .discount { font-size: 0.7rem; color: var(--red); font-weight: 600; }
   .na-badge { color: var(--red); font-weight: 600; font-size: 0.85rem; padding: 0.5rem 1rem; }
 
-  /* Buy button */
   .buy-btn {
     display: inline-block; background: var(--blue); color: #fff; border: none;
     border-radius: 6px; padding: 0.3rem 0.6rem; font-size: 0.75rem; font-weight: 600;
@@ -217,9 +310,11 @@
   @media (max-width: 640px) {
     .container { padding: 0.75rem; }
     .search-row { flex-direction: column; }
+    .qty-input-wrap { max-width: 100%; }
     .platform-grid { grid-template-columns: 1fr; }
     .cheapest-banner { flex-direction: column; text-align: center; }
     .summary-grid { grid-template-columns: 1fr 1fr; }
+    .cat-product-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -252,10 +347,16 @@
     <!-- Single search -->
     <div id="singleSearch">
       <div class="search-row">
-        <input type="text" id="searchQuery" placeholder="e.g. Toor Dal, Amul Butter, Paneer, Papaya..." autofocus>
-        <input type="text" id="searchQty" placeholder="Quantity (e.g. 1kg)" style="max-width:180px;">
+        <div class="search-input-wrap">
+          <input type="text" id="searchQuery" placeholder="e.g. Toor Dal, Amul Butter, Paneer, Papaya..." autofocus autocomplete="off">
+          <div class="autosuggest" id="suggestDropdown"></div>
+        </div>
+        <div class="qty-input-wrap">
+          <input type="text" id="searchQty" placeholder="Quantity (e.g. 1kg)" autocomplete="off">
+        </div>
         <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">🔍 Compare</button>
       </div>
+      <div class="qty-chips" id="qtyChips"></div>
     </div>
 
     <!-- List search -->
@@ -272,6 +373,25 @@
         <button class="btn btn-primary btn-sm" onclick="doListSearch()">🔍 Compare All</button>
       </div>
     </div>
+  </div>
+
+  <!-- Category Browser -->
+  <div class="category-section" id="categorySection">
+    <h3>Browse Categories</h3>
+    <div class="category-scroll" id="categoryScroll"></div>
+    <div class="cat-products" id="catProducts">
+      <div class="cat-products-header">
+        <h3 id="catProductsTitle"></h3>
+        <button class="cat-products-close" onclick="closeCatProducts()">✕</button>
+      </div>
+      <div class="cat-product-grid" id="catProductGrid"></div>
+    </div>
+  </div>
+
+  <!-- Popular Searches -->
+  <div class="popular-section">
+    <h3>🔥 Popular Searches</h3>
+    <div class="popular-tags" id="popularTags"></div>
   </div>
 
   <!-- Loading -->
@@ -432,13 +552,13 @@
 
   </div><!-- end tab-channels -->
 
-  <!-- Settings save button -->
-  <div class="tab-content" id="tab-settings" style="display:none;"></div>
-
 </div>
 
 <script>
 let listMode = false;
+let suggestTimer = null;
+let activeSuggestIdx = -1;
+let currentCategory = null;
 
 const PLATFORM_URLS = {
   Amazon: 'https://www.amazon.in/s?k=',
@@ -456,29 +576,236 @@ const PLATFORM_COLORS = {
   Amazon: '#ff9900', Flipkart: '#2874f0', BigBasket: '#84c225', Blinkit: '#f8cb46', Zepto: '#8b5cf6',
 };
 
-const CATEGORY_ICONS = {
-  default: '🛒',
-  fruit: '🍎', vegetable: '🥬', dairy: '🥛', staple: '🌾',
-  cooking: '🫒', snack: '🍪', beverage: '☕', personal: '🧴',
-  cleaning: '🧹', baby: '👶', frozen: '🧊',
+const CAT_COLORS = {
+  fruits: '#fef3c7', vegetables: '#d1fae5', dairy: '#dbeafe', staples: '#fef9c3',
+  cooking: '#fce7f3', snacks: '#fde68a', beverages: '#e0e7ff', personal_care: '#ede9fe',
+  cleaning: '#cffafe', baby_care: '#fce7f3', frozen: '#e0f2fe', pet_care: '#f3e8ff',
 };
+
+const POPULAR_SEARCHES = [
+  '🥛 Amul Milk', '🍚 Basmati Rice', '🫘 Toor Dal', '🧈 Amul Butter',
+  '🥔 Potato', '🍅 Tomato', '🧅 Onion', '🫒 Sunflower Oil',
+  '☕ Nescafe Coffee', '🍫 Dairy Milk', '🧼 Dettol Soap', '🧹 Surf Excel',
+  '🍌 Banana', '🥚 Eggs', '🧀 Paneer', '🍪 Parle-G',
+];
 
 function getCategoryIcon(name) {
   const n = name.toLowerCase();
-  if (/apple|banana|papaya|mango|orange|grape|watermelon|pomegranate|guava|kiwi|fruit/.test(n)) return CATEGORY_ICONS.fruit;
-  if (/potato|onion|tomato|carrot|capsicum|brinjal|cauliflower|cabbage|spinach|peas|beans|lady|cucumber|ginger|garlic|vegetable/.test(n)) return CATEGORY_ICONS.vegetable;
-  if (/milk|ghee|cheese|curd|yogurt|buttermilk|cream|butter|paneer|egg/.test(n)) return CATEGORY_ICONS.dairy;
-  if (/rice|dal|atta|flour|sugar|rajma|chole|chickpea|poha|sooji|rava|bread/.test(n)) return CATEGORY_ICONS.staple;
-  if (/oil|salt|turmeric|chilli|cumin|coriander/.test(n)) return CATEGORY_ICONS.cooking;
-  if (/chip|namkeen|biscuit|cookie|chocolate|maggi/.test(n)) return CATEGORY_ICONS.snack;
-  if (/tea|coffee|juice|soft drink|water|coca|thums/.test(n)) return CATEGORY_ICONS.beverage;
-  if (/soap|shampoo|toothpaste|face wash|deodorant/.test(n)) return CATEGORY_ICONS.personal;
-  if (/detergent|dishwash|floor|toilet|cleaner/.test(n)) return CATEGORY_ICONS.cleaning;
-  if (/diaper|baby/.test(n)) return CATEGORY_ICONS.baby;
-  if (/ice cream|frozen/.test(n)) return CATEGORY_ICONS.frozen;
-  return CATEGORY_ICONS.default;
+  if (/apple|banana|papaya|mango|orange|grape|watermelon|pomegranate|guava|kiwi|pineapple|strawberry|chikoo|sapota|lemon|coconut|litchi|pear|plum|custard|fig|fruit/.test(n)) return '🍎';
+  if (/potato|onion|tomato|carrot|capsicum|brinjal|cauliflower|cabbage|spinach|peas|beans|lady|cucumber|ginger|garlic|beetroot|radish|bitter|bottle|ridge|drumstick|mushroom|sweet potato|corn|coriander|mint|curry|chilli|vegetable/.test(n)) return '🥬';
+  if (/milk|ghee|cheese|curd|yogurt|buttermilk|cream|butter|paneer|egg|dahi|chaas/.test(n)) return '🥛';
+  if (/rice|dal|atta|flour|sugar|rajma|chole|chickpea|poha|sooji|rava|besan|maida|oats|cornflakes|muesli|jaggery/.test(n)) return '🌾';
+  if (/oil|salt|turmeric|chilli|cumin|coriander powder|garam|pepper|bay|cinnamon|cardamom|cloves|vinegar|soy sauce|ketchup/.test(n)) return '🫒';
+  if (/chip|namkeen|biscuit|cookie|chocolate|almond|cashew|raisin|walnut|pistachio|dry fruit/.test(n)) return '🍪';
+  if (/tea|coffee|juice|soft drink|water|coca|thums|pepsi|sprite|horlicks|bournvita|complan|boost|health drink/.test(n)) return '☕';
+  if (/soap|shampoo|toothpaste|face wash|deodorant|hair oil|body lotion|sunscreen|razor|sanitary/.test(n)) return '🧴';
+  if (/detergent|dishwash|floor|toilet|cleaner|glass|mosquito|room fresh|garbage|tissue|aluminium|cling/.test(n)) return '🧹';
+  if (/diaper|baby/.test(n)) return '👶';
+  if (/ice cream|frozen|maggi|noodle|ready to eat|bread|chicken|momo|paratha/.test(n)) return '🧊';
+  if (/dog|cat|pet/.test(n)) return '🐾';
+  return '🛒';
 }
 
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ── Category Browser ───────────────────────────────────────────────────
+async function loadCategories() {
+  try {
+    const res = await fetch('/api/categories');
+    const cats = await res.json();
+    const scroll = document.getElementById('categoryScroll');
+    scroll.innerHTML = cats.map(c => `
+      <div class="cat-pill" data-cat="${c.id}" onclick="selectCategory('${c.id}')"
+           style="background:${CAT_COLORS[c.id] || '#f3f4f6'};">
+        <span class="emoji">${c.icon}</span>
+        <span>${esc(c.label)}</span>
+        <span class="count">(${c.product_count})</span>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load categories:', err);
+  }
+}
+
+async function selectCategory(catId) {
+  // Toggle active state
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  if (currentCategory === catId) {
+    currentCategory = null;
+    closeCatProducts();
+    return;
+  }
+  currentCategory = catId;
+  const pill = document.querySelector(`.cat-pill[data-cat="${catId}"]`);
+  if (pill) pill.classList.add('active');
+
+  try {
+    const res = await fetch(`/api/categories/${catId}`);
+    const data = await res.json();
+    const title = document.getElementById('catProductsTitle');
+    title.textContent = `${data.icon} ${data.label}`;
+
+    const grid = document.getElementById('catProductGrid');
+    grid.innerHTML = data.products.map(p => {
+      const prices = Object.values(p.prices);
+      const minP = Math.min(...prices);
+      const maxP = Math.max(...prices);
+      return `
+        <div class="cat-product-card" onclick="searchFromCategory('${esc(p.name)}')">
+          <div class="icon">${getCategoryIcon(p.name)}</div>
+          <div class="info">
+            <div class="pname" title="${esc(p.name)}">${esc(p.name)}</div>
+            <div class="pprice">₹${minP}</div>
+            <div class="prange">₹${minP} — ₹${maxP} across ${Object.keys(p.prices).length} platforms</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('catProducts').classList.add('show');
+  } catch (err) {
+    console.error('Failed to load category products:', err);
+  }
+}
+
+function closeCatProducts() {
+  document.getElementById('catProducts').classList.remove('show');
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  currentCategory = null;
+}
+
+function searchFromCategory(productName) {
+  document.getElementById('searchQuery').value = productName;
+  closeCatProducts();
+  doSearch();
+}
+
+// ── Autosuggest ────────────────────────────────────────────────────────
+const searchInput = document.getElementById('searchQuery');
+const suggestDropdown = document.getElementById('suggestDropdown');
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(suggestTimer);
+  const q = searchInput.value.trim();
+  if (q.length < 2) {
+    hideSuggest();
+    return;
+  }
+  suggestTimer = setTimeout(() => fetchSuggestions(q), 300);
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  const items = suggestDropdown.querySelectorAll('.suggest-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    activeSuggestIdx = Math.min(activeSuggestIdx + 1, items.length - 1);
+    updateSuggestActive(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    activeSuggestIdx = Math.max(activeSuggestIdx - 1, -1);
+    updateSuggestActive(items);
+  } else if (e.key === 'Enter') {
+    if (activeSuggestIdx >= 0 && items[activeSuggestIdx]) {
+      items[activeSuggestIdx].click();
+    } else {
+      hideSuggest();
+      doSearch();
+    }
+  } else if (e.key === 'Escape') {
+    hideSuggest();
+  }
+});
+
+searchInput.addEventListener('blur', () => {
+  setTimeout(hideSuggest, 200);
+});
+
+async function fetchSuggestions(q) {
+  try {
+    const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
+    const suggestions = await res.json();
+    if (suggestions.length === 0) {
+      hideSuggest();
+      return;
+    }
+    activeSuggestIdx = -1;
+    suggestDropdown.innerHTML = suggestions.map((s, i) => `
+      <div class="suggest-item" data-idx="${i}" onmousedown="selectSuggestion('${esc(s.name)}')">
+        <div class="icon">${s.icon}</div>
+        <div class="info">
+          <div class="name">${esc(s.name)}</div>
+          <div class="cat">${esc(s.category)}</div>
+        </div>
+      </div>
+    `).join('');
+    suggestDropdown.classList.add('show');
+  } catch (err) {
+    console.error('Suggest failed:', err);
+  }
+}
+
+function selectSuggestion(name) {
+  searchInput.value = name;
+  hideSuggest();
+  fetchQtySuggestions(name);
+  doSearch();
+}
+
+function hideSuggest() {
+  suggestDropdown.classList.remove('show');
+  activeSuggestIdx = -1;
+}
+
+function updateSuggestActive(items) {
+  items.forEach((el, i) => el.classList.toggle('active', i === activeSuggestIdx));
+}
+
+// ── Quantity Suggestions ───────────────────────────────────────────────
+const qtyInput = document.getElementById('searchQty');
+const qtyChips = document.getElementById('qtyChips');
+
+qtyInput.addEventListener('focus', () => {
+  const q = searchInput.value.trim();
+  if (q) fetchQtySuggestions(q);
+});
+
+async function fetchQtySuggestions(q) {
+  try {
+    const res = await fetch(`/api/quantity-suggestions?q=${encodeURIComponent(q)}`);
+    const suggestions = await res.json();
+    if (suggestions.length === 0) {
+      qtyChips.classList.remove('show');
+      return;
+    }
+    qtyChips.innerHTML = suggestions.map(s =>
+      `<span class="qty-chip" onclick="selectQty('${esc(s)}')">${esc(s)}</span>`
+    ).join('');
+    qtyChips.classList.add('show');
+  } catch (err) {
+    console.error('Qty suggest failed:', err);
+  }
+}
+
+function selectQty(qty) {
+  qtyInput.value = qty;
+  qtyChips.classList.remove('show');
+}
+
+// ── Popular Searches ───────────────────────────────────────────────────
+function loadPopularSearches() {
+  const container = document.getElementById('popularTags');
+  container.innerHTML = POPULAR_SEARCHES.map(s => {
+    const clean = s.replace(/^[^\w]+/, '').trim();
+    return `<span class="popular-tag" onclick="suggestSearch('${esc(clean)}')">${s}</span>`;
+  }).join('');
+}
+
+function suggestSearch(term) {
+  document.getElementById('searchQuery').value = term;
+  doSearch();
+}
+
+// ── Toggle list mode ───────────────────────────────────────────────────
 function toggleListMode() {
   listMode = !listMode;
   document.getElementById('singleSearch').style.display = listMode ? 'none' : 'block';
@@ -495,17 +822,13 @@ function addListItem() {
   div.querySelector('.list-name').focus();
 }
 
-function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-function suggestSearch(term) {
-  document.getElementById('searchQuery').value = term;
-  doSearch();
-}
-
+// ── Search functions ───────────────────────────────────────────────────
 async function doSearch() {
   const query = document.getElementById('searchQuery').value.trim();
   const qty = document.getElementById('searchQty').value.trim();
   if (!query) return;
+  hideSuggest();
+  qtyChips.classList.remove('show');
 
   showLoading(true);
   try {
@@ -552,12 +875,12 @@ function showLoading(show) {
   document.getElementById('results').classList.toggle('show', !show);
 }
 
+// ── Render Results ─────────────────────────────────────────────────────
 function renderResults(comparisons, summary) {
   const container = document.getElementById('results');
   container.innerHTML = '';
   container.classList.add('show');
 
-  // Render consolidated summary + smart cart for list mode
   if (summary && summary.total_items > 0) {
     renderSummary(container, summary, comparisons);
     renderSavingsBreakdown(container, summary);
@@ -565,13 +888,11 @@ function renderResults(comparisons, summary) {
   }
 
   comparisons.forEach(comp => {
-    // Section header
     const header = document.createElement('h2');
     header.style.cssText = 'font-size:1.1rem;color:var(--text-muted);margin:1.5rem 0 0.75rem;';
     header.textContent = `Results for "${comp.query}${comp.quantity ? ' ' + comp.quantity : ''}" (${comp.total_results} found)`;
     container.appendChild(header);
 
-    // No results
     if (comp.total_results === 0) {
       const noRes = document.createElement('div');
       noRes.className = 'no-results-card';
@@ -589,7 +910,6 @@ function renderResults(comparisons, summary) {
       return;
     }
 
-    // Cheapest banner
     if (comp.cheapest) {
       const c = comp.cheapest;
       const banner = document.createElement('div');
@@ -608,7 +928,6 @@ function renderResults(comparisons, summary) {
       `;
       container.appendChild(banner);
 
-      // Share Results section
       const shareDiv = document.createElement('div');
       shareDiv.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;';
       const shareText = `🛒 ${c.name} — Best Price ₹${c.price.toFixed(0)} on ${c.platform}`;
@@ -623,7 +942,6 @@ function renderResults(comparisons, summary) {
       container.appendChild(shareDiv);
     }
 
-    // Platform cards
     const grid = document.createElement('div');
     grid.className = 'platform-grid';
 
@@ -692,7 +1010,6 @@ function sortPlatformCard(btn) {
 function renderSummary(container, summary, comparisons) {
   const card = document.createElement('div');
   card.className = 'summary-card';
-
   const platforms = ['Amazon', 'Flipkart', 'BigBasket', 'Blinkit', 'Zepto'];
   const platformStats = platforms.map(p => {
     const key = `total_${p.toLowerCase().replace(' ', '_')}_cost`;
@@ -731,12 +1048,10 @@ function renderSavingsBreakdown(container, summary) {
     const key = `total_${p.toLowerCase().replace(' ', '_')}_cost`;
     return { name: p, total: summary[key] || 0 };
   }).filter(p => p.total > 0);
-
   if (data.length === 0) return;
 
   const maxCost = Math.max(...data.map(d => d.total));
   const colors = ['#ff9900', '#2874f0', '#84c225', '#f8cb46', '#8b5cf6'];
-
   const card = document.createElement('div');
   card.className = 'savings-card';
   card.innerHTML = `
@@ -764,10 +1079,8 @@ function renderSavingsBreakdown(container, summary) {
 
 function renderSmartCart(container, summary, comparisons) {
   if (!summary.cheapest_cart || summary.cheapest_cart.length === 0) return;
-
   const card = document.createElement('div');
   card.className = 'smart-cart';
-
   const rows = summary.cheapest_cart.map(item => `
     <tr>
       <td>${getCategoryIcon(item.item)} ${esc(item.item)}</td>
@@ -780,7 +1093,6 @@ function renderSmartCart(container, summary, comparisons) {
   const platforms = ['Amazon', 'Flipkart', 'BigBasket', 'Blinkit', 'Zepto'];
   const allItemNames = summary.cheapest_cart.map(c => c.item);
   const searchStr = allItemNames.join(' ');
-
   const platformButtons = platforms.map(p => {
     const key = `total_${p.toLowerCase().replace(' ', '_')}_cost`;
     const total = summary[key] || 0;
@@ -811,7 +1123,6 @@ function renderSmartCart(container, summary, comparisons) {
 }
 
 function buyCheapestCart() {
-  // Open each platform link for the cheapest items
   const cart = window._lastSummary?.cheapest_cart || [];
   const byPlatform = {};
   cart.forEach(item => {
@@ -820,24 +1131,16 @@ function buyCheapestCart() {
   });
   Object.entries(byPlatform).forEach(([platform, items]) => {
     const url = PLATFORM_URLS[platform];
-    if (url) {
-      window.open(url + encodeURIComponent(items.join(' ')), '_blank');
-    }
+    if (url) window.open(url + encodeURIComponent(items.join(' ')), '_blank');
   });
 }
 
-// Override renderResults to store summary for buyCheapestCart
 const _origRenderResults = renderResults;
 renderResults = function(comparisons, summary) {
   window._lastSummary = summary;
   window._lastComparisons = comparisons;
   _origRenderResults(comparisons, summary);
 };
-
-// Enter key triggers search
-document.getElementById('searchQuery').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doSearch();
-});
 
 // ── Tab switching ──────────────────────────────────────────────────────
 function switchTab(tab) {
@@ -898,10 +1201,8 @@ async function testChannel(channel) {
   }
 }
 
-// ── Bot status check ───────────────────────────────────────────────────
 // ── Share functions ─────────────────────────────────────────────────────
 function shareToTelegram(text, url) {
-  const encoded = encodeURIComponent(text + '\n' + url);
   window.open('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank');
 }
 
@@ -922,17 +1223,13 @@ function sendToSlack(query) {
   })
   .then(r => r.json())
   .then(data => {
-    if (data.success) {
-      alert('Results sent to Slack!');
-    } else {
-      alert('Failed to send: ' + (data.error || data.message || 'Unknown error'));
-    }
+    if (data.success) alert('Results sent to Slack!');
+    else alert('Failed to send: ' + (data.error || data.message || 'Unknown error'));
   })
   .catch(err => alert('Error: ' + err.message));
 }
 
 function copyResultsAsText(query, btn) {
-  // Build plain text summary from the last search results
   const results = window._lastComparisons || [];
   const comp = results.find(c => c.query === query) || results[0];
   if (!comp) { alert('No results to copy'); return; }
@@ -999,10 +1296,6 @@ function saveSettings() {
   alert('Settings saved to browser storage.');
 }
 
-// Load settings on page load
-document.addEventListener('DOMContentLoaded', loadSettings);
-
-// ── Bot status check ───────────────────────────────────────────────────
 async function checkBotStatus() {
   const pre = document.getElementById('bot-status-result');
   pre.style.display = 'block';
@@ -1011,7 +1304,6 @@ async function checkBotStatus() {
     const res = await fetch('/api/bots/status');
     const data = await res.json();
     pre.textContent = JSON.stringify(data, null, 2);
-    // Update status dots on integrations tab
     const mapping = {telegram: 'tg-bot-status', slack: 'slack-bot-status', whatsapp: 'wa-bot-status'};
     Object.entries(mapping).forEach(([key, id]) => {
       const dot = document.getElementById(id);
@@ -1024,6 +1316,13 @@ async function checkBotStatus() {
     pre.textContent = 'Error: ' + err.message;
   }
 }
+
+// ── Init ───────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
+  loadCategories();
+  loadPopularSearches();
+});
 </script>
 
 </body>

@@ -16,7 +16,16 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from pydantic import BaseModel
 
-from app.scrapers.price_engine import search_all_platforms, search_list
+from app.scrapers.price_engine import (
+    search_all_platforms,
+    search_list,
+    get_categories,
+    get_category_products,
+    get_suggestions,
+    get_quantity_suggestions,
+    CATEGORIES,
+    CATEGORY_QUANTITIES,
+)
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("good-explorer")
@@ -63,6 +72,39 @@ async def compare_list_endpoint(req: ListSearchRequest):
     """Compare prices for a list of items with consolidated summary."""
     results, summary = await search_list(req.items)
     return {"items": results, "summary": summary}
+
+
+@app.get("/api/categories")
+async def categories_endpoint():
+    """Return all categories with product counts."""
+    return get_categories()
+
+
+@app.get("/api/categories/{category_id}")
+async def category_products_endpoint(category_id: str):
+    """Return all products in a category with prices."""
+    products = get_category_products(category_id)
+    if not products:
+        return JSONResponse({"error": "Category not found"}, status_code=404)
+    cat_meta = CATEGORIES.get(category_id, {})
+    return {
+        "category": category_id,
+        "label": cat_meta.get("label", category_id),
+        "icon": cat_meta.get("icon", "🛒"),
+        "products": products,
+    }
+
+
+@app.get("/api/suggest")
+async def suggest_endpoint(q: str = ""):
+    """Return product name suggestions for autosuggest."""
+    return get_suggestions(q)
+
+
+@app.get("/api/quantity-suggestions")
+async def quantity_suggestions_endpoint(q: str = ""):
+    """Return quantity suggestions based on product category."""
+    return get_quantity_suggestions(q)
 
 
 # ── Telegram webhook ───────────────────────────────────────────────────
