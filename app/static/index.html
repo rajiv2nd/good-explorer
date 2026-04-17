@@ -181,6 +181,39 @@
   .cart-table .total-row td { border-top: 2px solid var(--primary); }
   .cart-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
 
+  /* Tabs */
+  .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); }
+  .tab-btn {
+    padding: 0.75rem 1.5rem; border: none; background: none; font-size: 1rem;
+    font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent;
+    transition: all 0.2s; margin-bottom: -2px;
+  }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tab-btn:hover { color: var(--primary); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Channel settings */
+  .channel-card {
+    background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 1.5rem; margin-bottom: 1rem;
+  }
+  .channel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .channel-header h3 { font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .status-dot.green { background: var(--primary); }
+  .status-dot.red { background: var(--red); }
+  .status-dot.gray { background: #9ca3af; }
+  .channel-field { margin-bottom: 0.75rem; }
+  .channel-field label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.25rem; }
+  .channel-field input {
+    width: 100%; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 0.9rem; font-family: monospace; outline: none;
+  }
+  .channel-field input:focus { border-color: var(--primary); }
+  .channel-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  .channel-info { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
+
   @media (max-width: 640px) {
     .container { padding: 0.75rem; }
     .search-row { flex-direction: column; }
@@ -198,6 +231,16 @@
 </div>
 
 <div class="container">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('search')">🔍 Search</button>
+    <button class="tab-btn" onclick="switchTab('integrations')">🔗 Integrations</button>
+    <button class="tab-btn" onclick="switchTab('channels')">📡 Channels</button>
+  </div>
+
+  <!-- Search Tab -->
+  <div class="tab-content active" id="tab-search">
 
   <!-- Search Section -->
   <div class="search-section">
@@ -239,6 +282,158 @@
 
   <!-- Results -->
   <div id="results"></div>
+
+  </div><!-- end tab-search -->
+
+  <!-- Integrations Tab -->
+  <div class="tab-content" id="tab-integrations">
+
+    <div class="channel-card">
+      <div class="channel-header">
+        <h3>🤖 Telegram Bot <span class="status-dot gray" id="tg-bot-status"></span></h3>
+      </div>
+      <p style="margin-bottom:0.75rem;">Add <b>@GoodExplorerBot</b> on Telegram to compare grocery prices right from your chat.</p>
+      <div style="background:#f3f4f6;border-radius:8px;padding:1rem;text-align:center;margin-bottom:0.75rem;color:var(--text-muted);font-size:0.9rem;">
+        📷 QR Code Placeholder — scan to open bot
+      </div>
+      <div class="channel-field">
+        <label>Webhook URL</label>
+        <input type="text" readonly value="/api/telegram/webhook" onclick="this.select()">
+      </div>
+      <div class="channel-info">
+        <b>Setup:</b> Create a bot via <a href="https://t.me/BotFather" target="_blank">@BotFather</a>,
+        set <code>TELEGRAM_BOT_TOKEN</code>, then run <code>good-explorer telegram-bot</code> for polling
+        or configure the webhook URL above.
+      </div>
+    </div>
+
+    <div class="channel-card">
+      <div class="channel-header">
+        <h3>💬 Add to Slack <span class="status-dot gray" id="slack-bot-status"></span></h3>
+      </div>
+      <p style="margin-bottom:0.75rem;">Use the <code>/compare</code> slash command in Slack to get instant price comparisons.</p>
+      <a href="https://api.slack.com/messaging/webhooks" target="_blank" class="btn btn-sm btn-primary" style="margin-bottom:0.75rem;display:inline-block;">Add to Slack</a>
+      <div class="channel-field">
+        <label>Slash Command URL</label>
+        <input type="text" readonly value="/api/slack/command" onclick="this.select()">
+      </div>
+      <div class="channel-field">
+        <label>Webhook URL (for posting)</label>
+        <input type="text" readonly value="Set SLACK_WEBHOOK_URL env var" onclick="this.select()">
+      </div>
+      <div class="channel-info">
+        <b>Setup:</b> Create an <a href="https://api.slack.com/apps" target="_blank">Slack App</a>,
+        add a slash command pointing to <code>/api/slack/command</code>,
+        and optionally create an incoming webhook for proactive posting.
+      </div>
+    </div>
+
+    <div class="channel-card">
+      <div class="channel-header">
+        <h3>📱 WhatsApp <span class="status-dot gray" id="wa-bot-status"></span></h3>
+      </div>
+      <p style="margin-bottom:0.75rem;">Message us on WhatsApp to compare prices on the go.</p>
+      <a href="https://wa.me/14155238886?text=search%20toor%20dal" target="_blank" class="btn btn-sm btn-primary" style="margin-bottom:0.75rem;display:inline-block;">Message on WhatsApp</a>
+      <div class="channel-field">
+        <label>Webhook URL</label>
+        <input type="text" readonly value="/api/whatsapp/webhook" onclick="this.select()">
+      </div>
+      <div class="channel-info">
+        <b>Setup:</b> Use <a href="https://www.twilio.com/docs/whatsapp/sandbox" target="_blank">Twilio WhatsApp Sandbox</a>
+        or WhatsApp Business API. Point the webhook to <code>/api/whatsapp/webhook</code>.
+        Set <code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_WHATSAPP_FROM</code> for outbound messaging.
+      </div>
+    </div>
+
+    <div class="channel-card" style="border-left:3px solid var(--blue);">
+      <h3 style="margin-bottom:0.75rem;">📊 Bot Status API</h3>
+      <div class="channel-field">
+        <label>Status Endpoint</label>
+        <input type="text" readonly value="/api/bots/status" onclick="this.select()">
+      </div>
+      <div class="channel-info">
+        Returns JSON with configuration status for each bot integration.
+        <button class="btn btn-sm btn-outline" style="margin-top:0.5rem;" onclick="checkBotStatus()">Check Status</button>
+        <pre id="bot-status-result" style="margin-top:0.5rem;font-size:0.8rem;background:#f3f4f6;padding:0.5rem;border-radius:6px;display:none;"></pre>
+      </div>
+    </div>
+
+  </div><!-- end tab-integrations -->
+
+  <!-- Channels Tab -->
+  <div class="tab-content" id="tab-channels">
+
+    <div class="channel-card">
+      <div class="channel-header">
+        <h3>🤖 Telegram Bot <span class="status-dot gray" id="telegram-status"></span></h3>
+      </div>
+      <div class="channel-field">
+        <label>Bot Token</label>
+        <input type="password" id="telegram-token" placeholder="Enter your Telegram Bot Token">
+      </div>
+      <div class="channel-actions">
+        <button class="btn btn-primary btn-sm" onclick="testChannel('telegram')">Test Connection</button>
+      </div>
+      <div class="channel-info">
+        Create a bot via <a href="https://t.me/BotFather" target="_blank">@BotFather</a> on Telegram.
+        Run <code>good-explorer telegram-bot</code> to start polling.
+      </div>
+      <div id="telegram-result" style="margin-top:0.5rem;font-size:0.85rem;"></div>
+    </div>
+
+    <div class="channel-card">
+      <div class="channel-header">
+        <h3>💬 Slack <span class="status-dot gray" id="slack-status"></span></h3>
+      </div>
+      <div class="channel-field">
+        <label>Webhook URL</label>
+        <input type="password" id="slack-webhook" placeholder="https://hooks.slack.com/services/...">
+      </div>
+      <div class="channel-actions">
+        <button class="btn btn-primary btn-sm" onclick="testChannel('slack')">Test Connection</button>
+      </div>
+      <div class="channel-info">
+        Create an <a href="https://api.slack.com/messaging/webhooks" target="_blank">Incoming Webhook</a> in your Slack workspace.
+        Use <code>/compare</code> slash command or webhook posting.
+      </div>
+      <div id="slack-result" style="margin-top:0.5rem;font-size:0.85rem;"></div>
+    </div>
+
+    <div class="channel-card">
+      <div class="channel-header">
+        <h3>📱 WhatsApp (Twilio) <span class="status-dot gray" id="whatsapp-status"></span></h3>
+      </div>
+      <div class="channel-field">
+        <label>Account SID</label>
+        <input type="password" id="twilio-sid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <div class="channel-field">
+        <label>Auth Token</label>
+        <input type="password" id="twilio-token" placeholder="Your Twilio Auth Token">
+      </div>
+      <div class="channel-field">
+        <label>WhatsApp From Number</label>
+        <input type="text" id="twilio-from" placeholder="whatsapp:+14155238886">
+      </div>
+      <div class="channel-actions">
+        <button class="btn btn-primary btn-sm" onclick="testChannel('whatsapp')">Test Connection</button>
+      </div>
+      <div class="channel-info">
+        Set up a <a href="https://www.twilio.com/docs/whatsapp" target="_blank">Twilio WhatsApp Sandbox</a>.
+        Point webhook to <code>/api/whatsapp/webhook</code>.
+      </div>
+      <div id="whatsapp-result" style="margin-top:0.5rem;font-size:0.85rem;"></div>
+    </div>
+
+    <div style="text-align:center;margin-top:1rem;">
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Save All Settings</button>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;">Settings are saved to your browser's localStorage.</p>
+    </div>
+
+  </div><!-- end tab-channels -->
+
+  <!-- Settings save button -->
+  <div class="tab-content" id="tab-settings" style="display:none;"></div>
 
 </div>
 
@@ -412,6 +607,20 @@ function renderResults(comparisons, summary) {
         </div>
       `;
       container.appendChild(banner);
+
+      // Share Results section
+      const shareDiv = document.createElement('div');
+      shareDiv.style.cssText = 'display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;';
+      const shareText = `🛒 ${c.name} — Best Price ₹${c.price.toFixed(0)} on ${c.platform}`;
+      const shareUrl = c.product_url || window.location.href;
+      shareDiv.innerHTML = `
+        <span style="font-size:0.85rem;font-weight:600;color:var(--text-muted);margin-right:0.25rem;">Share:</span>
+        <button class="btn btn-sm" style="background:#0088cc;color:#fff;" onclick="shareToTelegram('${esc(shareText)}','${esc(shareUrl)}')">📨 Telegram</button>
+        <button class="btn btn-sm" style="background:#25D366;color:#fff;" onclick="shareToWhatsApp('${esc(shareText)}','${esc(shareUrl)}')">📱 WhatsApp</button>
+        <button class="btn btn-sm btn-purple" onclick="sendToSlack('${esc(comp.query)}')">💬 Slack</button>
+        <button class="btn btn-sm btn-outline" onclick="copyResultsAsText('${esc(comp.query)}', this)">📋 Copy as Text</button>
+      `;
+      container.appendChild(shareDiv);
     }
 
     // Platform cards
@@ -621,6 +830,7 @@ function buyCheapestCart() {
 const _origRenderResults = renderResults;
 renderResults = function(comparisons, summary) {
   window._lastSummary = summary;
+  window._lastComparisons = comparisons;
   _origRenderResults(comparisons, summary);
 };
 
@@ -628,6 +838,192 @@ renderResults = function(comparisons, summary) {
 document.getElementById('searchQuery').addEventListener('keydown', e => {
   if (e.key === 'Enter') doSearch();
 });
+
+// ── Tab switching ──────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+  if (tab === 'channels') loadChannelStatus();
+}
+
+// ── Channel status ─────────────────────────────────────────────────────
+async function loadChannelStatus() {
+  try {
+    const res = await fetch('/api/channels/status');
+    const data = await res.json();
+    ['telegram', 'slack', 'whatsapp'].forEach(ch => {
+      const dot = document.getElementById(ch + '-status');
+      if (!dot) return;
+      const info = data[ch];
+      if (info.configured && info.has_library) {
+        dot.className = 'status-dot green';
+        dot.title = 'Configured';
+      } else if (info.configured || info.has_library) {
+        dot.className = 'status-dot';
+        dot.style.background = 'var(--orange)';
+        dot.title = info.configured ? 'Library not installed' : 'Credentials not set';
+      } else {
+        dot.className = 'status-dot red';
+        dot.title = 'Not configured';
+      }
+    });
+  } catch (err) {
+    console.error('Failed to load channel status:', err);
+  }
+}
+
+async function testChannel(channel) {
+  const resultEl = document.getElementById(channel + '-result');
+  resultEl.textContent = 'Testing...';
+  resultEl.style.color = 'var(--text-muted)';
+  try {
+    const res = await fetch('/api/channels/test', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({channel, query: 'toor dal'}),
+    });
+    const data = await res.json();
+    if (data.success === false) {
+      resultEl.textContent = 'Failed: ' + (data.message || 'Unknown error');
+      resultEl.style.color = 'var(--red)';
+    } else {
+      resultEl.textContent = data.message || 'Success';
+      resultEl.style.color = 'var(--primary)';
+    }
+  } catch (err) {
+    resultEl.textContent = 'Error: ' + err.message;
+    resultEl.style.color = 'var(--red)';
+  }
+}
+
+// ── Bot status check ───────────────────────────────────────────────────
+// ── Share functions ─────────────────────────────────────────────────────
+function shareToTelegram(text, url) {
+  const encoded = encodeURIComponent(text + '\n' + url);
+  window.open('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareToWhatsApp(text, url) {
+  const msg = encodeURIComponent(text + '\n' + url);
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+function sendToSlack(query) {
+  const saved = localStorage.getItem('ge_slack_webhook') || '';
+  const webhook = prompt('Enter Slack Webhook URL:', saved);
+  if (!webhook) return;
+  localStorage.setItem('ge_slack_webhook', webhook);
+  fetch('/api/slack/search', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({webhook_url: webhook, query: query, quantity: ''}),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert('Results sent to Slack!');
+    } else {
+      alert('Failed to send: ' + (data.error || data.message || 'Unknown error'));
+    }
+  })
+  .catch(err => alert('Error: ' + err.message));
+}
+
+function copyResultsAsText(query, btn) {
+  // Build plain text summary from the last search results
+  const results = window._lastComparisons || [];
+  const comp = results.find(c => c.query === query) || results[0];
+  if (!comp) { alert('No results to copy'); return; }
+
+  let lines = ['🛒 Good Explorer — Price Comparison', '', `Search: ${query}`, ''];
+  const cheapest = comp.cheapest;
+  if (cheapest) {
+    lines.push(`🏆 Best: ₹${cheapest.price.toFixed(0)} on ${cheapest.platform} (${cheapest.delivery_time || 'N/A'})`);
+    lines.push(`   ${cheapest.name}`);
+    lines.push('');
+  }
+  const order = ['Amazon', 'Flipkart', 'BigBasket', 'Blinkit', 'Zepto'];
+  const icons = {Amazon: '📦', Flipkart: '🛍️', BigBasket: '🧺', Blinkit: '⚡', Zepto: '🚀'};
+  order.forEach(p => {
+    const items = (comp.platforms || {})[p] || [];
+    if (items.length > 0) {
+      const best = items.reduce((a, b) => a.price < b.price ? a : b);
+      lines.push(`${icons[p] || '🛒'} ${p}: ₹${best.price.toFixed(0)}`);
+    }
+  });
+  if (cheapest && cheapest.product_url) {
+    lines.push('');
+    lines.push(`Buy: ${cheapest.product_url}`);
+  }
+
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  }).catch(() => alert('Failed to copy'));
+}
+
+// ── Settings localStorage ──────────────────────────────────────────────
+function loadSettings() {
+  const fields = {
+    'telegram-token': 'ge_telegram_token',
+    'slack-webhook': 'ge_slack_webhook',
+    'twilio-sid': 'ge_twilio_sid',
+    'twilio-token': 'ge_twilio_token',
+    'twilio-from': 'ge_twilio_from',
+  };
+  Object.entries(fields).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const val = localStorage.getItem(key);
+      if (val) el.value = val;
+    }
+  });
+}
+
+function saveSettings() {
+  const fields = {
+    'telegram-token': 'ge_telegram_token',
+    'slack-webhook': 'ge_slack_webhook',
+    'twilio-sid': 'ge_twilio_sid',
+    'twilio-token': 'ge_twilio_token',
+    'twilio-from': 'ge_twilio_from',
+  };
+  Object.entries(fields).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el && el.value) localStorage.setItem(key, el.value);
+  });
+  alert('Settings saved to browser storage.');
+}
+
+// Load settings on page load
+document.addEventListener('DOMContentLoaded', loadSettings);
+
+// ── Bot status check ───────────────────────────────────────────────────
+async function checkBotStatus() {
+  const pre = document.getElementById('bot-status-result');
+  pre.style.display = 'block';
+  pre.textContent = 'Checking...';
+  try {
+    const res = await fetch('/api/bots/status');
+    const data = await res.json();
+    pre.textContent = JSON.stringify(data, null, 2);
+    // Update status dots on integrations tab
+    const mapping = {telegram: 'tg-bot-status', slack: 'slack-bot-status', whatsapp: 'wa-bot-status'};
+    Object.entries(mapping).forEach(([key, id]) => {
+      const dot = document.getElementById(id);
+      if (dot) {
+        dot.className = data[key] ? 'status-dot green' : 'status-dot red';
+        dot.title = data[key] ? 'Configured' : 'Not configured';
+      }
+    });
+  } catch (err) {
+    pre.textContent = 'Error: ' + err.message;
+  }
+}
 </script>
 
 </body>

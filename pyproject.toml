@@ -23,6 +23,19 @@ dev = [
     "pytest>=7.0",
     "ruff>=0.3.0",
 ]
+telegram = ["python-telegram-bot>=21.0"]
+slack = ["slack-sdk>=3.0"]
+whatsapp = ["twilio>=9.0"]
+bots = [
+    "python-telegram-bot>=21.0",
+    "slack-sdk>=3.0",
+    "twilio>=9.0.0",
+]
+channels = [
+    "python-telegram-bot>=21.0",
+    "slack-sdk>=3.0",
+    "twilio>=9.0",
+]
 
 [project.scripts]
 good-explorer = "app.main:cli"
